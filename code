@@ -1,0 +1,59 @@
+//Webhook temperature: A program for the Particle Argon that reads the temperature of a room and posts it to a Webhook
+//Created for task 3.1P of SIT210
+//Author: Matthew Murrell
+//Date: 21/03/2022
+
+
+//Libraries
+#include <Adafruit_DHT.h>
+
+
+//Constants
+const int TEMP_PIN = D2;      // The pin that the DHT sensor is connected to
+const int DELAY_TIME = 10000; // The number of milliseconds delayed between each reading
+
+//Initialises the DHT11 sensor
+DHT dht(TEMP_PIN, DHT11);
+
+void setup() {
+    //Sets up the DHT11
+	dht.begin();
+}
+
+	
+//Reads the temperature from the DHT sensor and returns it as a string.
+String get_temp() {
+
+    //Reads the temperature from the DHT sensor
+    float temp = dht.getTempCelcius();
+
+
+    // Tests if temp  is a valid number
+    if (isnan(temp)) {
+        // Returns "NaN" if temp is not a number
+        return "NaN"; 
+    } else {
+        //Returns temp as a string if temp is a number
+        return String(temp);
+    }
+}
+
+//Publishes temp to the 'temp' webhook
+void pub_temp(String temp) {
+    Particle.publish("temp", temp , PRIVATE);
+}
+
+
+//The main loop of the system
+void loop() {
+
+    //Stores the current temperature as the string temp
+    String temp = get_temp();
+
+    //Posts temp
+    pub_temp(temp);
+    
+    //Waits DELAY_TIME ms until the next reading
+    delay(DELAY_TIME);
+
+}
